@@ -26,7 +26,7 @@ class Example1
 
     System.out.print("password: ");
     String pword = getString();
-    String url = "jdbc:mysql://cisvm-cop3855.unfcsd.unf.edu:3306/group3";
+    String url = "jdbc:mysql://cisvm-winsrv-mysql1.unfcsd.unf.edu:3306/group3";
     
 //	try {
 //
@@ -63,47 +63,21 @@ class Example1
     Class.forName("com.mysql.cj.jdbc.Driver");
     Connection conn=DriverManager.getConnection(  url, uid, pword);
     
-    
 
     // Create a Statement
     Statement stmt = conn.createStatement ();
-
-    System.out.println("\nEnter vendor code, \nThen product code, " +
-                       "description, price, and quantity on hand " +
-                       "will be displayed\n");
-
-    int v = 1;
-
-    while (v != 0) {
-      // read vendor code
-      System.out.print("Vendor Code (enter 0 for exit): ");
-      v = getInt();
-
-      // Select the P_CODE, P_DESCRIPT, P_PRICE, and P_ONHAND columns from the 
-      // PRODUCT table
-
-      String q = "select P_CODE, P_DESCRIPT, P_PRICE, P_ONHAND " +
-               "from PRODUCT " +
-               "where V_CODE= " + v;
-
-      ResultSet rset = stmt.executeQuery(q);
-
-      System.out.println("\n");
-
-      // Iterate through the result
-      while (rset.next ()) {
-        String pcode = rset.getString("P_CODE");
-        String pdescript = rset.getString("P_DESCRIPT");
-        float pprice = rset.getFloat("P_PRICE");
-        int ponhand = rset.getInt("P_ONHAND");        
-        System.out.println (pcode + ":" + pdescript + ":" + 
-                            pprice + ":" + ponhand);
-      } // while rset
-
-      System.out.println("\n");
-    } // while v
-
-  } // main
+    
+    String q = "select * from group3.isbn";
+    
+    ResultSet rset = stmt.executeQuery(q);
+    
+    while (rset.next ()) {
+        String isbn = rset.getString("ISBN");
+               
+        System.out.println(isbn);
+    } // while rset
+    
+  } // main 
 
  public static String getString() {
 	try {
