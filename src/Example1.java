@@ -97,25 +97,32 @@ class Example1
     	String title = reader.next();
     	title += reader.nextLine();
     	Statement stmt1 = conn.createStatement();
-    	String q2 = "select * from group3.isbn where isbn.Title='" + title+"'";
-    	ResultSet rset1 = stmt1.executeQuery(q2);
-    	
-    	System.out.println("");
-    	System.out.println(q2);
-    	System.out.println("");
-    	
-    	while (rset1.next ()) {
+    	String q2 = "select * from group3.isbn, group3.book where isbn.Title='" + title+"' and isbn.isbn = book.isbn";
+        ResultSet rset1 = stmt1.executeQuery(q2);
+        
+        System.out.println("");
+        System.out.println(q2);
+        System.out.println("");
+        
+        while (rset1.next ()) {
           String isbn = rset1.getString("ISBN");
           String author = rset1.getString("AuthorName");
           String category = rset1.getString("Category");
           String publisher = rset1.getString("Publisher");
           String format = rset1.getString("Format");
+          String condition = rset1.getString("Condition");
+          boolean rent = rset1.getBoolean("Rent");
+          boolean buy = rset1.getBoolean("Buy");
+          float price = rset1.getFloat("Price");
           System.out.println("ISBN: " + isbn + "\n" 
-        		  				+ "Author: " + author + "\n" 
-        		  				+ "Category: " + category + "\n"
-        		  				+ "Publisher: " + publisher + "\n"
-        		  				+ "Format: " + format);
-
+                                  + "Author: " + author + "\n" 
+                                  + "Category: " + category + "\n"
+                                  + "Publisher: " + publisher + "\n"
+                                  + "Price: $" + price + "\n"
+                                  + "Condition: " + condition + "\n"
+                                  + "Format: " + format + "\n"
+                                  + "Rentable: " + rent + "\n"
+                                  + "Buyable: " + buy + "\n");
       }
     	
     } // End Choice 1
