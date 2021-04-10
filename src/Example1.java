@@ -183,10 +183,37 @@ class Example1
     	
     	System.out.println("book id = " + bookid);
     	
+    	
+    	
+    	// check if new release
+
+    	
+    	
     	//System.out.println(date);
     	java.util.Date date = new java.util.Date();
     	java.sql.Date sqlDate = new java.sql.Date(date.getTime());
-    	java.sql.Date sqlDate1 = new java.sql.Date(date.getTime() + 5l*24l*60l*60l*1000l);
+    	java.sql.Date sqlDate1 = null;
+    	
+    	
+    	if (rob.equals("rent")) {
+    		Statement st3 = conn.createStatement();
+    		String q5 = "select * from group3.book where Book_ID='"+bookid+"'";
+    		ResultSet rset4 = st3.executeQuery(q5);
+    		String tem = "";
+    		while (rset4.next()) {
+    			tem = rset4.getString("NewRelease");
+    		}
+    		if (tem.equals("0")) {
+    			sqlDate1 = new java.sql.Date(date.getTime() + 5l*24l*60l*60l*1000l);
+    		}
+    		else {
+    			sqlDate1 = new java.sql.Date(date.getTime() + 4l*24l*60l*60l*1000l);
+    		}
+    	} 
+    	else {
+    		sqlDate1 = new java.sql.Date(date.getTime() + 5l*24l*60l*60l*1000l);
+    	}
+    	
     	//date.toString();
     	
     	ps.setDate(1, sqlDate);
@@ -194,9 +221,41 @@ class Example1
     	
     	ps.executeUpdate();
     	
-    	ps.close();
-    	conn.close();
     	
+    	Statement st3 = conn.createStatement();
+    	String q5 = "select MAX(Transaction_ID) from group3.transaction";
+    	ResultSet rset4 = st3.executeQuery(q5);
+    	String maxv = "";
+    	while (rset4.next()) {
+    		maxv = rset4.getString("max(Transaction_ID)");
+    	}
+    	
+    	Statement st4 = conn.createStatement();
+    	String q6 = "select * from group3.book where Book_ID='"+bookid+"'";
+    	ResultSet rset5 = st4.executeQuery(q6);
+    	String bookprice = "";
+    	while (rset5.next()) {
+    		bookprice = rset5.getString("Price");
+    	}
+    	
+    	Statement st5 = conn.createStatement();
+    	String q7 = "select * from group3.bill where bill.Customer_ID='"+custID+"'";
+    	ResultSet rset6 = st5.executeQuery(q7);
+    	String bal = "";
+    	while (rset6.next ()) {
+            bal = rset6.getString("Total");
+    	}
+    	System.out.println(" Your current total is $" + bal);
+    	
+    	
+    	float newtotal = Float.parseFloat(bookprice) + Float.parseFloat(bal);
+    	// Update bill section
+    	int maxi = Integer.parseInt(maxv);
+    	PreparedStatement ps1 = conn.prepareStatement("INSERT INTO group3.bill (Tax, LateFee, Total, Customer_ID, Transaction_ID) "
+    			+ "VALUES(7 , 7,"+newtotal+", '"+custID +"' ,'" + maxi + "')");
+    	
+    	
+    	ps1.executeUpdate();
     	
 
     	//st.setTimestamp(1, date);
@@ -204,9 +263,96 @@ class Example1
     	//int insert = 
     	
     	
-    	
+    } // end choice 2
+ 
+    
+    if(choice == 3) {
+        System.out.println("Please enter the transaction ID from your book recipet");
+        int transactionID = reader.nextInt();
+        //need some way to make sure that the transactionID int exists and to repeat the statement if not
+        
+        java.util.Date date = new java.util.Date();
+        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+        
+        String qEndDate = "select * from group3.transaction where transaction.Transaction_ID='" + transactionID + "'";
+        Statement sEndDate = conn.createStatement();
+        ResultSet rEndDate = sEndDate.executeQuery(qEndDate);
+        
+        rEndDate.next();
+        java.sql.Date endDate = rEndDate.getDate("ReturnBy");
+        System.out.println("End date = " + endDate);
+        
+        String q3 = "UPDATE `group3`.`transaction` SET `ReturnDate` = '" + sqlDate + "' WHERE (`Transaction_ID` = '" + transactionID + "')";
+        PreparedStatement update = conn.prepareStatement(q3);
+        update.executeUpdate();
+        String q3_1 = "select * from group3.transaction where transaction.Transaction_ID='" + transactionID + "'";
+        System.out.println("query: " + q3_1);
+        
+        if(sqlDate.compareTo(endDate) > 0) {
+            System.out.println("This is late!");
+            //need to add late fee here
+        }
     }
 
+    if (choice == 4) {
+    	
+    	Statement st = conn.createStatement();
+    	String q2 = "select * from group3.bill where bill.Customer_ID='"+custID+"'";
+    	ResultSet rset1 = st.executeQuery(q2);
+    	String bal = "";
+    	while (rset1.next ()) {
+            bal = rset1.getString("Total");
+    	}
+    	System.out.println(" Your current total is $" + bal);
+    }
+    
+    if (choice == 5) {
+    	
+    	Statement st = conn.createStatement();
+    	String q2 = "select * from group3.bill where bill.Customer_ID='"+custID+"'";
+    	ResultSet rset1 = st.executeQuery(q2);
+    	String bal = "";
+    	String late = "";
+    	float pay = 0;
+    	while (rset1.next ()) {
+            bal = rset1.getString("Total");
+            late = rset1.getString("LateFee");
+    	}
+    	System.out.println(" What will you be paying today?");
+    	System.out.println(" 1. Late Fees");
+    	System.out.println(" 2. Balance");
+    	System.out.print("> ");
+    	int lob = reader.nextInt();
+    	
+    	if (lob == 1) {
+    		System.out.println(" Your current late fee balance is "+late+" how much would you like to pay?");
+    		System.out.print("> ");
+    		pay = reader.nextInt();
+    		float ilate = Float.parseFloat(late);
+    		ilate = ilate - pay;
+    		System.out.println(" New late fee balance is " + ilate);
+    		String q3 = "UPDATE `group3`.`bill` SET `LateFee` = '" + ilate + "' WHERE (`Customer_ID` = '" + custID + "')";
+            PreparedStatement update = conn.prepareStatement(q3);
+            update.executeUpdate();
+            
+    		
+    	}
+    	else {
+    		System.out.println(" Your current balance is "+bal+ " how much would you like to pay off");
+    		System.out.print("> ");
+    		pay = reader.nextInt();
+    		float ilate = Float.parseFloat(bal);
+    		ilate = ilate - pay;
+    		System.out.println(" New late fee balance is " + ilate);
+    		String q3 = "UPDATE `group3`.`bill` SET `Total` = '" + ilate + "' WHERE (`Customer_ID` = '" + custID + "')";
+            PreparedStatement update = conn.prepareStatement(q3);
+            update.executeUpdate();
+    	}
+    	
+   	
+    	
+    }
+    
     // Create a Statement
 //    Statement stmt = conn.createStatement ();
 //    
@@ -222,7 +368,12 @@ class Example1
     
   } // main 
 
- public static String getString() {
+ private static void where(boolean next) {
+	// TODO Auto-generated method stub
+	
+}
+
+public static String getString() {
 	try {
 	    StringBuffer buffer = new StringBuffer();
         int c = System.in.read();
