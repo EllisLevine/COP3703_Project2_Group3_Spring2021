@@ -553,6 +553,46 @@ class Example1
     	
     	if (hasAdmin) {
     		
+    		System.out.println(" Which of the following features would you like to access");
+    		System.out.println("1. Check user balance");
+    		System.out.println("2. Apply late fees");
+    		int choicen = reader.nextInt();
+    		
+    		if (choicen == 1) {
+    			System.out.println(" Enter the Customer ID of the user who's balance you want to check");
+    			String usr = reader.next();
+    			System.out.println(" ");
+    			Statement st = conn.createStatement();
+    	    	String q2 = "select sum(Total) from group3.bill where bill.Customer_ID="+usr;
+    	    	ResultSet rset1 = st.executeQuery(q2);
+    	    	String bal = "";
+    	    	while (rset1.next ()) {
+    	            bal = rset1.getString("sum(Total)");
+    	    	}
+    	    	System.out.println(" This users current total is $" + bal);
+    		}
+    		else if (choicen == 2) {
+    			System.out.println(" Enter the Customer ID in which you will apply late fee's too");
+    			int usr = reader.nextInt();
+    			System.out.println(" Enter the transaction ID in which the late fee's will be applied");
+    			int late = reader.nextInt();
+    			System.out.println(" ");
+    			Statement st = conn.createStatement();
+    	    	String q2 = "select * from group3.bill where bill.Customer_ID="+usr+" and bill.Transaction_ID="+late;
+    	    	ResultSet rset1 = st.executeQuery(q2);
+    	    	String bal = "";
+    	    	while (rset1.next ()) {
+    	            bal = rset1.getString("LateFee");
+    	    	}
+    	    	float latefee = Float.parseFloat(bal);
+    	    	System.out.println(" This users current late fee total is $" + latefee +" how much shall be added?");
+    	    	float nlate = reader.nextFloat();
+    	    	latefee = latefee + nlate;
+    	    	System.out.println(" users new late fee is " + latefee);
+    	    	PreparedStatement p1 = conn.prepareStatement("update group3.bill set LateFee="+latefee+" where bill.Customer_ID="+usr+" and bill.Transaction_ID="+late);
+    	    	p1.executeUpdate();
+    		}
+    	    	
     		
     	}
     	else {
