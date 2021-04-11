@@ -19,12 +19,22 @@ class Example1
 	
 	
   public static void main (String args [])
-       throws SQLException, ClassNotFoundException
+       throws SQLException, ClassNotFoundException, SQLSyntaxErrorException
   {
 	//Properties prop = new Properties();
 	//InputStream input = null;
 	  
     //System.out.print("userid: ");
+
+	System.out.println("");
+	System.out.println("|---------------------|");
+	System.out.println("|                     |");
+	System.out.println("| Welcome To UNFBooks |");
+	System.out.println("|                     |");
+	System.out.println("|---------------------|");
+	System.out.println("\n");
+	  
+	  
 	Scanner reader = new Scanner(System.in); 
 	  
     String uid = "n01362563";
@@ -56,10 +66,12 @@ class Example1
         	hasAdmin = true;
         }
         
-        System.out.println("cust " + custID);
-        System.out.println("admin " + custf);
+//        System.out.println("cust " + custID);
+//        System.out.println("admin " + custf);
     }
 	// END LOGIN
+	
+	while (true) {
     
     System.out.println("\n User Options ");
     System.out.println("----------------------------");
@@ -78,6 +90,8 @@ class Example1
 	    System.out.println("9. Generate Reports\n");
     }
     
+    System.out.println(" Enter -1 to exit the program");
+    System.out.println("");
     
     System.out.print("> "); int choice = reader.nextInt();
     System.out.println("");
@@ -92,25 +106,23 @@ class Example1
     
     if (choice == 1)
     {
-  
+    	System.out.println(" Enter the name of the book you are searching for\n");
     	System.out.print("> ");
     	String title = reader.next();
     	title += reader.nextLine();
     	Statement stmt1 = conn.createStatement();
     	String q2 = "select * from group3.isbn, group3.book where isbn.Title='" + title+"' and isbn.isbn = book.isbn";
         ResultSet rset1 = stmt1.executeQuery(q2);
-        
         System.out.println("");
-        System.out.println(q2);
-        System.out.println("");
+        String isbn = "";
         
         while (rset1.next ()) {
-          String isbn = rset1.getString("ISBN");
+          isbn = rset1.getString("ISBN");
           String author = rset1.getString("AuthorName");
           String category = rset1.getString("Category");
           String publisher = rset1.getString("Publisher");
           String format = rset1.getString("Format");
-          String condition = rset1.getString("Condition");
+          String condition = rset1.getString("BookCondition");
           boolean rent = rset1.getBoolean("Rent");
           boolean buy = rset1.getBoolean("Buy");
           float price = rset1.getFloat("Price");
@@ -119,11 +131,16 @@ class Example1
                                   + "Category: " + category + "\n"
                                   + "Publisher: " + publisher + "\n"
                                   + "Price: $" + price + "\n"
-                                  + "Condition: " + condition + "\n"
+                                  + "BookCondition: " + condition + "\n"
                                   + "Format: " + format + "\n"
                                   + "Rentable: " + rent + "\n"
                                   + "Buyable: " + buy + "\n");
       }
+      
+        if (isbn.equals("")) {
+        	System.out.println(" Nothing was found returning to main menu");
+        }
+      
     	
     } // End Choice 1
     
@@ -159,6 +176,12 @@ class Example1
     	while (rset1.next ()) {
             isbn = rset1.getString("ISBN");
     	}
+    	
+    	if (isbn.equals("")) {
+    		System.out.println("Book not located, returning to menu");
+    		continue;
+    	}
+    	
     	Statement st1 = conn.createStatement();
     	String q3 = "select * from group3.book where book.ISBN='"+isbn+"'";
     	ResultSet rset2 = st1.executeQuery(q3);
@@ -181,7 +204,7 @@ class Example1
     	PreparedStatement ps = conn.prepareStatement("INSERT INTO group3.transaction (Transaction_ID, Book_ID, TransDate, ReturnBy, ReturnDate, BoughtOrRent, Payment_ID) "
     			+ "VALUES(null , "+bookid+", ?, ?, null, '"+rob +"' ,'" + pid + "')");
     	
-    	System.out.println("book id = " + bookid);
+    	System.out.println("");
     	
     	
     	
@@ -222,6 +245,8 @@ class Example1
     	ps.executeUpdate();
     	
     	
+    	
+    	
     	Statement st3 = conn.createStatement();
     	String q5 = "select MAX(Transaction_ID) from group3.transaction";
     	ResultSet rset4 = st3.executeQuery(q5);
@@ -247,20 +272,25 @@ class Example1
     	}
     	System.out.println(" Your current total is $" + bal);
     	
+    	float taxval = Float.parseFloat(bookprice) * Float.parseFloat(".07");
     	
-    	float newtotal = Float.parseFloat(bookprice);
+    	float newtotal = Float.parseFloat(bookprice) + taxval;
+    	
+    	
     	// Update bill section
     	int maxi = Integer.parseInt(maxv);
     	PreparedStatement ps1 = conn.prepareStatement("INSERT INTO group3.bill (Tax, LateFee, Total, Customer_ID, Transaction_ID) "
-    			+ "VALUES(7 , 7,"+newtotal+", '"+custID +"' ,'" + maxi + "')");
+    			+ "VALUES("+taxval+" , null,"+newtotal+", '"+custID +"' ,'" + maxi + "')");
     	
     	
     	ps1.executeUpdate();
-    	
+   
+    	System.out.println(" Transaction Sucesssful, your transaction number for this bill is " +maxi);
 
     	//st.setTimestamp(1, date);
     	
     	//int insert = 
+    	
     	
     	
     } // end choice 2
@@ -268,8 +298,12 @@ class Example1
     
     if(choice == 3) {
         System.out.println("Please enter the transaction ID from your book recipet");
+        System.out.println("");
+        System.out.print("> ");
+        
         int transactionID = reader.nextInt();
         //need some way to make sure that the transactionID int exists and to repeat the statement if not
+        
         
         java.util.Date date = new java.util.Date();
         java.sql.Date sqlDate = new java.sql.Date(date.getTime());
@@ -286,7 +320,7 @@ class Example1
         PreparedStatement update = conn.prepareStatement(q3);
         update.executeUpdate();
         String q3_1 = "select * from group3.transaction where transaction.Transaction_ID='" + transactionID + "'";
-        System.out.println("query: " + q3_1);
+        System.out.println("");
         
         if(sqlDate.compareTo(endDate) > 0) {
             System.out.println("This is late!");
@@ -304,6 +338,7 @@ class Example1
             bal = rset1.getString("Total");
     	}
     	System.out.println(" Your current total is $" + bal);
+    	System.out.println("");
     }
     
     if (choice == 5) {
@@ -355,7 +390,41 @@ class Example1
     	
     	if (hasAdmin) {
     		
-    		
+    		System.out.println(" Enter the name of the book you are searching for\n");
+        	System.out.print("> ");
+        	String title = reader.next();
+        	title += reader.nextLine();
+        	Statement stmt1 = conn.createStatement();
+        	String q2 = "select * from group3.isbn, group3.book where isbn.Title='" + title+"' and isbn.isbn = book.isbn";
+            ResultSet rset1 = stmt1.executeQuery(q2);
+            System.out.println("");
+            String isbn = "";
+            
+            while (rset1.next ()) {
+              isbn = rset1.getString("ISBN");
+              String author = rset1.getString("AuthorName");
+              String category = rset1.getString("Category");
+              String publisher = rset1.getString("Publisher");
+              String format = rset1.getString("Format");
+              String condition = rset1.getString("BookCondition");
+              boolean rent = rset1.getBoolean("Rent");
+              boolean buy = rset1.getBoolean("Buy");
+              float price = rset1.getFloat("Price");
+              System.out.println("ISBN: " + isbn + "\n" 
+                                      + "Author: " + author + "\n" 
+                                      + "Category: " + category + "\n"
+                                      + "Publisher: " + publisher + "\n"
+                                      + "Price: $" + price + "\n"
+                                      + "BookCondition: " + condition + "\n"
+                                      + "Format: " + format + "\n"
+                                      + "Rentable: " + rent + "\n"
+                                      + "Buyable: " + buy + "\n");
+          }
+          
+            if (isbn.equals("")) {
+            	System.out.println(" Nothing was found returning to main menu");
+            }
+          
     	}
     	else {
     		System.out.println(" You do not have access to this option");
@@ -373,6 +442,7 @@ class Example1
     		System.out.println("2. Delete Title");
     		System.out.println("3. Update Title");
     		System.out.println(" Select any other number to quit");
+    		System.out.println("");
     		System.out.print("> ");
     		int achoice = reader.nextInt();
     		
@@ -463,6 +533,7 @@ class Example1
     		}
     		else if (achoice == 2) {
     			System.out.println(" Enter the name of the book you would like to delete");
+    			System.out.print("> ");
     			String delbook = reader.next();
     			
     			Statement st = conn.createStatement();
@@ -471,6 +542,11 @@ class Example1
     	    	String nisbn= "";
     	    	while (rset1.next ()) {
     	            nisbn = rset1.getString("ISBN");
+    	    	}
+    	    	
+    	    	if (nisbn.equals("")) {
+    	    		System.out.println("Book not located, returning to menu");
+    	    		continue;
     	    	}
     			
     			PreparedStatement p1 = conn.prepareStatement("delete from group3.isbn where isbn.Title='"+delbook+"'");
@@ -482,6 +558,8 @@ class Example1
     		}
     		else if (achoice == 3) {
     			System.out.println(" Enter the ISBN of the Title you would like to update");
+    			System.out.print("");
+    			System.out.println("> ");
     			String isbnn = reader.next();
     			System.out.println(" What do you want to update about this ISBN ");
     			System.out.println("1. Title");
@@ -556,10 +634,13 @@ class Example1
     		System.out.println(" Which of the following features would you like to access");
     		System.out.println("1. Check user balance");
     		System.out.println("2. Apply late fees");
+    		System.out.println("");
+    		System.out.print("> ");
     		int choicen = reader.nextInt();
     		
     		if (choicen == 1) {
     			System.out.println(" Enter the Customer ID of the user who's balance you want to check");
+    			System.out.print("> ");
     			String usr = reader.next();
     			System.out.println(" ");
     			Statement st = conn.createStatement();
@@ -573,8 +654,10 @@ class Example1
     		}
     		else if (choicen == 2) {
     			System.out.println(" Enter the Customer ID in which you will apply late fee's too");
+    			System.out.print("> ");
     			int usr = reader.nextInt();
     			System.out.println(" Enter the transaction ID in which the late fee's will be applied");
+    			System.out.print("> ");
     			int late = reader.nextInt();
     			System.out.println(" ");
     			Statement st = conn.createStatement();
@@ -600,6 +683,53 @@ class Example1
     		//break;
     	}
     }
+    
+    if (choice == 9) {
+    	
+    	if (hasAdmin) {
+    		System.out.println(" What would you like to generate reports by? ");
+    		System.out.println("1. Title");
+    		System.out.println("2. Genre");
+    		System.out.println("3. Period");
+    		System.out.print("> ");
+    		int cu = reader.nextInt();
+    		
+    		if (cu == 1) {
+    			
+    			System.out.println("Enter the name of the Title you want to generate a report for");
+    			System.out.print("> ");
+    			String tn = reader.next();
+  
+    			
+    		}
+    		
+    	}
+    	else {
+    		System.out.println(" You do not have access to this option");
+    		//break;
+    	}
+    	
+    }
+    
+    if (choice < 0) {
+    	
+    	if (choice == -1) {
+    		System.out.println(" -1 Entered.. Exiting program");
+    		System.exit(0);
+    	}
+    	else {
+    		System.out.println(" Negative number entered, Would you like to exit the program?");
+    		System.out.println("1. Yes");
+    		System.out.println("2. No");
+    		int rx = reader.nextInt();
+    		
+    		if(rx == 1) {
+    			System.exit(0);
+    		}
+    		
+    	}    	
+    }
+	}
     
     
     
