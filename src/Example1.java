@@ -248,7 +248,7 @@ class Example1
     	System.out.println(" Your current total is $" + bal);
     	
     	
-    	float newtotal = Float.parseFloat(bookprice) + Float.parseFloat(bal);
+    	float newtotal = Float.parseFloat(bookprice);
     	// Update bill section
     	int maxi = Integer.parseInt(maxv);
     	PreparedStatement ps1 = conn.prepareStatement("INSERT INTO group3.bill (Tax, LateFee, Total, Customer_ID, Transaction_ID) "
@@ -349,9 +349,219 @@ class Example1
             update.executeUpdate();
     	}
     	
-   	
+    }
+    
+    else if (choice == 6) {
+    	
+    	if (hasAdmin) {
+    		
+    		
+    	}
+    	else {
+    		System.out.println(" You do not have access to this option");
+    		//break;	
+    	}
     	
     }
+    
+    else if (choice == 7) {
+    	
+    	if (hasAdmin) {
+    		
+    		System.out.println(" Which of the following actions would you like to perform");
+    		System.out.println("1. Add Title");
+    		System.out.println("2. Delete Title");
+    		System.out.println("3. Update Title");
+    		System.out.println(" Select any other number to quit");
+    		System.out.print("> ");
+    		int achoice = reader.nextInt();
+    		
+    		if (achoice == 1) {
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the name of the book to be added");
+    			String book = reader.next();
+    		
+    			System.out.println("");
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the authorname");
+    			String author = reader.next();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the category");
+    			String cat = reader.next();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the publisher");
+    			String pub = reader.next();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the format");
+    			String forma = reader.next();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the ISBN");
+    			String isbn = reader.next();
+    			
+    			
+    			System.out.println(" Enter the condition");
+    			String condition = reader.next();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the number of copies");
+    			int copies = reader.nextInt();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Enter the Price");
+    			float price = reader.nextFloat();
+    			
+    			
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Is the book rentable? Type 1 for yes or 2 for no");
+    			short rentable = reader.nextShort();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Is the book Buyable? Type 1 for yes or 2 for no");
+    			short buyable = reader.nextShort();
+    			
+    			
+    			//System.out.print("> ");
+    			System.out.println(" Is the book a new release? Type 1 for yes or 2 for no");
+    			short newrelease = reader.nextShort();
+    			
+    			
+    			Statement st3 = conn.createStatement();
+    	    	String q5 = "select MAX(Book_ID) from group3.book";
+    	    	ResultSet rset4 = st3.executeQuery(q5);
+    	    	String maxv = "";
+    	    	while (rset4.next()) {
+    	    		maxv = rset4.getString("max(Book_ID)");
+    	    	}
+    			int imax = Integer.parseInt(maxv) + 1;
+    			
+    			PreparedStatement ps1 = conn.prepareStatement("INSERT INTO group3.book (Book_ID, ISBN, NumCopies, Price, BookCondition, Rent, Buy, NewRelease) "
+    	    			+ "VALUES("+imax+", '"+isbn+"', "+copies+", "+price+", '"+condition+"', "+rentable+", "+buyable+", "+newrelease+")") ;
+    	    	
+    			PreparedStatement ps2 = conn.prepareStatement("INSERT INTO group3.isbn (ISBN, Title, AuthorName, Category, Publisher, Format) "
+    	    			+ "VALUES('"+isbn+"', '"+book+"', '"+author+"', '"+cat+"', '"+pub+"', '"+forma+"') ") ;
+    	    	
+    			ps2.executeUpdate();
+    	    	ps1.executeUpdate();
+    	    	
+    			
+    			
+    		}
+    		else if (achoice == 2) {
+    			System.out.println(" Enter the name of the book you would like to delete");
+    			String delbook = reader.next();
+    			
+    			Statement st = conn.createStatement();
+    	    	String q2 = "select * from group3.isbn where isbn.Title='"+delbook+"'";
+    	    	ResultSet rset1 = st.executeQuery(q2);
+    	    	String nisbn= "";
+    	    	while (rset1.next ()) {
+    	            nisbn = rset1.getString("ISBN");
+    	    	}
+    			
+    			PreparedStatement p1 = conn.prepareStatement("delete from group3.isbn where isbn.Title='"+delbook+"'");
+    			PreparedStatement p2 = conn.prepareStatement("delete from group3.book where book.isbn='"+nisbn+"'");
+    			
+    			p1.executeUpdate();
+    			p2.executeUpdate();
+    			
+    		}
+    		else if (achoice == 3) {
+    			System.out.println(" Enter the ISBN of the Title you would like to update");
+    			String isbnn = reader.next();
+    			System.out.println(" What do you want to update about this ISBN ");
+    			System.out.println("1. Title");
+    			System.out.println("2. Authorname");
+    			System.out.println("3. Category");
+    			System.out.println("4. Publisher");
+    			System.out.println("5. Format");
+    			System.out.println("6. Number of Copies");
+    			System.out.println("7. Price");
+    			System.out.println("8. Condition");
+    			System.out.println("9. Rentable Status");
+    			System.out.println("10. Buyable Status");
+    			System.out.println("11. New Release Status");
+    			System.out.println(" Enter a number greater than 11 to cancel");
+    			int choiceu = reader.nextInt();
+    			
+    			String temp = "";
+    			String query = "";
+    			if (choiceu == 1) temp = "Title";
+    			if (choiceu == 2) temp = "AuthorName";
+    			if (choiceu == 3) temp = "Category";
+    			if (choiceu == 4) temp = "Publisher";
+    			if (choiceu == 5) temp = "Format";
+    			if (choiceu == 6) temp = "NumCopies";
+    			if (choiceu == 7) temp = "Price";
+    			if (choiceu == 8) temp = "BookCondition";
+    			if (choiceu == 9) temp = "Rent";
+    			if (choiceu == 10) temp = "Buy";
+    			if (choiceu == 11) temp = "NewRelease";
+    			
+    		
+    			if (choiceu >= 1 && choiceu <= 6) {
+    				System.out.println(" Enter what you want the updated value to be");
+    				String newval = reader.next();
+    				query = "update group3.isbn set "+temp+"='"+newval+"' where isbn.ISBN='"+isbnn+"'";
+    			}
+    			else if (choiceu > 6 && choiceu < 11) {
+    				System.out.println(" Enter what you want the updated value to be");
+    				int newval = reader.nextInt();
+    				query = "update group3.isbn set "+temp+"="+newval+"where isbn.ISBN='"+isbnn+"'";
+    			}
+    			else {
+    				System.out.println("Cancelling update...");
+    				//break;
+    			}
+    		
+    			PreparedStatement st1 = conn.prepareStatement(query);
+    			
+    			st1.executeUpdate();
+    			
+    			st1.close();
+    			
+    			
+    		}
+    		else {
+    			System.out.println("No valid choice entered, returning to main menu");
+    			//break;
+    		}
+    		
+    	}
+    	else {
+    		System.out.println(" You do not have access to this option");
+    		//break;
+    	}
+    	
+    }
+    
+    if (choice == 8) {
+    	
+    	if (hasAdmin) {
+    		
+    		
+    	}
+    	else {
+    		System.out.println(" You do not have access to this option");
+    		//break;
+    	}
+    }
+    
+    
     
     // Create a Statement
 //    Statement stmt = conn.createStatement ();
