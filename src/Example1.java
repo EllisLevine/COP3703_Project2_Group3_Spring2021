@@ -104,6 +104,10 @@ class Example1
     System.out.println("");
     
     System.out.print("> "); 
+    while(!reader.hasNextInt()) {
+    	System.out.println("You didn't enter a valid number, please try again");
+    	reader.next();
+    }
     int choice = reader.nextInt();
     System.out.println("");
 
