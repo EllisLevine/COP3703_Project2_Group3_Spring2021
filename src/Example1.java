@@ -37,12 +37,15 @@ class Example1
 	  
 	Scanner reader = new Scanner(System.in); 
 	  
-    String uid = "n01362563";
+	System.out.println(" Please enter username below");
+    String uid = reader.nextLine();
     
     
 
     //System.out.print("password: ");
-    String pword = "Spring20212563";
+    System.out.println(" Please enter password below");
+    String pword = reader.nextLine();
+    
     String url = "jdbc:mysql://cisvm-winsrv-mysql1.unfcsd.unf.edu:3306/group3";
     
     Class.forName("com.mysql.cj.jdbc.Driver");
@@ -69,6 +72,13 @@ class Example1
 //        System.out.println("cust " + custID);
 //        System.out.println("admin " + custf);
     }
+	
+	if (custID.equals("")) {
+		System.out.println("");
+		System.out.println(" Please enter a correct user id");
+		System.out.println("");
+		System.exit(0);
+	}
 	// END LOGIN
 	
 	while (true) {
@@ -93,7 +103,8 @@ class Example1
     System.out.println(" Enter -1 to exit the program");
     System.out.println("");
     
-    System.out.print("> "); int choice = reader.nextInt();
+    System.out.print("> "); 
+    int choice = reader.nextInt();
     System.out.println("");
 
     
@@ -217,14 +228,15 @@ class Example1
     	java.sql.Date sqlDate = new java.sql.Date(date.getTime());
     	java.sql.Date sqlDate1 = null;
     	
-    	
     	if (rob.equals("rent")) {
     		Statement st3 = conn.createStatement();
     		String q5 = "select * from group3.book where Book_ID='"+bookid+"'";
     		ResultSet rset4 = st3.executeQuery(q5);
     		String tem = "";
+    		
     		while (rset4.next()) {
     			tem = rset4.getString("NewRelease");
+    			
     		}
     		if (tem.equals("0")) {
     			sqlDate1 = new java.sql.Date(date.getTime() + 5l*24l*60l*60l*1000l);
@@ -255,12 +267,14 @@ class Example1
     		maxv = rset4.getString("max(Transaction_ID)");
     	}
     	
+    	String numCopies = "";
     	Statement st4 = conn.createStatement();
     	String q6 = "select * from group3.book where Book_ID='"+bookid+"'";
     	ResultSet rset5 = st4.executeQuery(q6);
     	String bookprice = "";
     	while (rset5.next()) {
     		bookprice = rset5.getString("Price");
+    		numCopies = rset5.getString("NumCopies");
     	}
     	
     	Statement st5 = conn.createStatement();
@@ -269,6 +283,7 @@ class Example1
     	String bal = "";
     	while (rset6.next ()) {
             bal = rset6.getString("Total");
+            
     	}
     	System.out.println(" Your current total is $" + bal);
     	
@@ -282,8 +297,13 @@ class Example1
     	PreparedStatement ps1 = conn.prepareStatement("INSERT INTO group3.bill (Tax, LateFee, Total, Customer_ID, Transaction_ID) "
     			+ "VALUES("+taxval+" , null,"+newtotal+", '"+custID +"' ,'" + maxi + "')");
     	
+    	int ncopies = Integer.parseInt(numCopies) - 1;
+    	PreparedStatement ps2 = conn.prepareStatement("update group3.book set NumCopies = "+ncopies+" where Book_ID = "+bookid);
+    	
     	
     	ps1.executeUpdate();
+    	ps2.executeUpdate();
+    	
    
     	System.out.println(" Transaction Sucesssful, your transaction number for this bill is " +maxi);
 
@@ -331,11 +351,11 @@ class Example1
     if (choice == 4) {
     	
     	Statement st = conn.createStatement();
-    	String q2 = "select * from group3.bill where bill.Customer_ID='"+custID+"'";
+    	String q2 = "select sum(Total) from group3.bill where bill.Customer_ID='"+custID+"'";
     	ResultSet rset1 = st.executeQuery(q2);
     	String bal = "";
     	while (rset1.next ()) {
-            bal = rset1.getString("Total");
+            bal = rset1.getString("sum(Total)");
     	}
     	System.out.println(" Your current total is $" + bal);
     	System.out.println("");
@@ -343,8 +363,12 @@ class Example1
     
     if (choice == 5) {
     	
+    	System.out.println(" What is the transaction ID of what you will be paying");
+    	System.out.print("> ");
+    	int tranid = reader.nextInt();
+    	
     	Statement st = conn.createStatement();
-    	String q2 = "select * from group3.bill where bill.Customer_ID='"+custID+"'";
+    	String q2 = "select * from group3.bill where bill.Customer_ID='"+custID+"' and bill.Transaction_ID="+tranid;
     	ResultSet rset1 = st.executeQuery(q2);
     	String bal = "";
     	String late = "";
@@ -353,16 +377,19 @@ class Example1
             bal = rset1.getString("Total");
             late = rset1.getString("LateFee");
     	}
+    	
+    	System.out.println("");
     	System.out.println(" What will you be paying today?");
     	System.out.println(" 1. Late Fees");
     	System.out.println(" 2. Balance");
+    	System.out.println("");
     	System.out.print("> ");
     	int lob = reader.nextInt();
     	
     	if (lob == 1) {
     		System.out.println(" Your current late fee balance is "+late+" how much would you like to pay?");
     		System.out.print("> ");
-    		pay = reader.nextInt();
+    		pay = reader.nextFloat();
     		float ilate = Float.parseFloat(late);
     		ilate = ilate - pay;
     		System.out.println(" New late fee balance is " + ilate);
@@ -375,7 +402,7 @@ class Example1
     	else {
     		System.out.println(" Your current balance is "+bal+ " how much would you like to pay off");
     		System.out.print("> ");
-    		pay = reader.nextInt();
+    		pay = reader.nextFloat();
     		float ilate = Float.parseFloat(bal);
     		ilate = ilate - pay;
     		System.out.println(" New late fee balance is " + ilate);
@@ -450,37 +477,37 @@ class Example1
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the name of the book to be added");
-    			String book = reader.next();
+    			String book = reader.nextLine();
     		
     			System.out.println("");
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the authorname");
-    			String author = reader.next();
+    			String author = reader.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the category");
-    			String cat = reader.next();
+    			String cat = reader.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the publisher");
-    			String pub = reader.next();
+    			String pub = reader.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the format");
-    			String forma = reader.next();
+    			String forma = reader.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the ISBN");
-    			String isbn = reader.next();
+    			String isbn = reader.nextLine();
     			
     			
     			System.out.println(" Enter the condition");
-    			String condition = reader.next();
+    			String condition = reader.nextLine();
     			
     			
     			//System.out.print("> ");
@@ -696,11 +723,40 @@ class Example1
     		
     		if (cu == 1) {
     			
-    			System.out.println("Enter the name of the Title you want to generate a report for");
-    			System.out.print("> ");
-    			String tn = reader.next();
-  
+    			Statement st4 = conn.createStatement();
+    	    	String q6 = "select distinct isbn.Title, isbn.Category, payment.Payment_ID, transaction.BoughtOrRent, book.Price\n" + 
+    	    			"from            isbn, book, payment, transaction\n" + 
+    	    			"where            isbn.ISBN = book.ISBN\n" + 
+    	    			"order by        isbn.Title, isbn.Category;";
+    	    	ResultSet rset5 = st4.executeQuery(q6);
+    	    	String bookprice = "";
+    	    	while (rset5.next()) {
+    	    		System.out.print(rset5.getString("Title") + ", ");
+    	    		System.out.print(rset5.getString("Category") + ", ");
+    	    		System.out.print(rset5.getString("Payment_ID") + ", ");
+    	    		System.out.print(rset5.getString("BoughtOrRent") + ", ");
+    	    		System.out.print(rset5.getString("Price")+" \n");
+    	    	}
+    	    	
+    		}
+    		
+    		if (cu == 2) {
     			
+    			Statement st4 = conn.createStatement();
+    	    	String q6 = "select distinct    transaction.TransDate, isbn.Title, book.NumCopies, book.Price, book.Rent, book.Buy\n" + 
+    	    			"from             transaction, isbn, book\n" + 
+    	    			"where            isbn.ISBN = book.ISBN\n" + 
+    	    			"order by        transaction.TransDate;";
+    	    	ResultSet rset5 = st4.executeQuery(q6);
+    	    	String bookprice = "";
+    	    	while (rset5.next()) {
+    	    		System.out.print(rset5.getString("TransDate") + ", ");
+    	    		System.out.print(rset5.getString("Title") + ", ");
+    	    		System.out.print(rset5.getString("NumCopies") + ", ");
+    	    		System.out.print(rset5.getString("Price") + ", ");
+    	    		System.out.print(rset5.getString("Rent")+", ");
+    	    		System.out.print(rset5.getString("Buy")+" \n");
+    	    	}
     		}
     		
     	}
@@ -732,19 +788,7 @@ class Example1
 	}
     
     
-    
-    // Create a Statement
-//    Statement stmt = conn.createStatement ();
-//    
-//    String q = "select * from group3.isbn";
-//    
-//    ResultSet rset = stmt.executeQuery(q);
-    
-//    while (rset.next ()) {
-//        String isbn = rset.getString("ISBN");
-//               
-//        System.out.println(isbn);
-//    } // while rset
+  
     
   } // main 
 
