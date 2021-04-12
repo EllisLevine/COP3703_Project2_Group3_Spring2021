@@ -409,7 +409,7 @@ class Example1
     		pay = reader.nextFloat();
     		float ilate = Float.parseFloat(bal);
     		ilate = ilate - pay;
-    		System.out.println(" New late fee balance is " + ilate);
+    		System.out.println(" New balance is " + ilate);
     		String q3 = "UPDATE `group3`.`bill` SET `Total` = '" + ilate + "' WHERE (`Customer_ID` = '" + custID + "')";
             PreparedStatement update = conn.prepareStatement(q3);
             update.executeUpdate();
@@ -478,67 +478,76 @@ class Example1
     		int achoice = reader.nextInt();
     		
     		if (achoice == 1) {
-    			
+    	
+    			Scanner reader1 = new Scanner(System.in);
     			//System.out.print("> ");
     			System.out.println(" Enter the name of the book to be added");
-    			String book = reader.nextLine();
-    		
-    			System.out.println("");
+    			String bookkkkk = reader1.nextLine();
+
+    			//System.out.println(book);
+    			
+//    			try {
+//					Thread.sleep(5000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
     			
     			//System.out.print("> ");
+    			
     			System.out.println(" Enter the authorname");
-    			String author = reader.nextLine();
+    			String author = reader1.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the category");
-    			String cat = reader.nextLine();
+    			String cat = reader1.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the publisher");
-    			String pub = reader.nextLine();
+    			String pub = reader1.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the format");
-    			String forma = reader.nextLine();
+    			String forma = reader1.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the ISBN");
-    			String isbn = reader.nextLine();
+    			String isbn = reader1.nextLine();
     			
     			
     			System.out.println(" Enter the condition");
-    			String condition = reader.nextLine();
+    			String condition = reader1.nextLine();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the number of copies");
-    			int copies = reader.nextInt();
+    			int copies = reader1.nextInt();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Enter the Price");
-    			float price = reader.nextFloat();
+    			float price = reader1.nextFloat();
     			
     			
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Is the book rentable? Type 1 for yes or 2 for no");
-    			short rentable = reader.nextShort();
+    			short rentable = reader1.nextShort();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Is the book Buyable? Type 1 for yes or 2 for no");
-    			short buyable = reader.nextShort();
+    			short buyable = reader1.nextShort();
     			
     			
     			//System.out.print("> ");
     			System.out.println(" Is the book a new release? Type 1 for yes or 2 for no");
-    			short newrelease = reader.nextShort();
+    			short newrelease = reader1.nextShort();
     			
     			
     			Statement st3 = conn.createStatement();
@@ -554,7 +563,7 @@ class Example1
     	    			+ "VALUES("+imax+", '"+isbn+"', "+copies+", "+price+", '"+condition+"', "+rentable+", "+buyable+", "+newrelease+")") ;
     	    	
     			PreparedStatement ps2 = conn.prepareStatement("INSERT INTO group3.isbn (ISBN, Title, AuthorName, Category, Publisher, Format) "
-    	    			+ "VALUES('"+isbn+"', '"+book+"', '"+author+"', '"+cat+"', '"+pub+"', '"+forma+"') ") ;
+    	    			+ "VALUES('"+isbn+"', '"+bookkkkk+"', '"+author+"', '"+cat+"', '"+pub+"', '"+forma+"') ") ;
     	    	
     			ps2.executeUpdate();
     	    	ps1.executeUpdate();
@@ -565,7 +574,7 @@ class Example1
     		else if (achoice == 2) {
     			System.out.println(" Enter the name of the book you would like to delete");
     			System.out.print("> ");
-    			String delbook = reader.next();
+    			String delbook = reader.nextLine();
     			
     			Statement st = conn.createStatement();
     	    	String q2 = "select * from group3.isbn where isbn.Title='"+delbook+"'";
@@ -588,10 +597,13 @@ class Example1
     			
     		}
     		else if (achoice == 3) {
+    			
+    			Scanner reader2 = new Scanner(System.in);
+    			
     			System.out.println(" Enter the ISBN of the Title you would like to update");
     			System.out.print("");
-    			System.out.println("> ");
-    			String isbnn = reader.next();
+    			System.out.print("> ");
+    			String isbnn = reader2.next();
     			System.out.println(" What do you want to update about this ISBN ");
     			System.out.println("1. Title");
     			System.out.println("2. Authorname");
@@ -605,7 +617,7 @@ class Example1
     			System.out.println("10. Buyable Status");
     			System.out.println("11. New Release Status");
     			System.out.println(" Enter a number greater than 11 to cancel");
-    			int choiceu = reader.nextInt();
+    			int choiceu = reader2.nextInt();
     			
     			String temp = "";
     			String query = "";
@@ -624,12 +636,12 @@ class Example1
     		
     			if (choiceu >= 1 && choiceu <= 6) {
     				System.out.println(" Enter what you want the updated value to be");
-    				String newval = reader.next();
+    				String newval = reader2.nextLine();
     				query = "update group3.isbn set "+temp+"='"+newval+"' where isbn.ISBN='"+isbnn+"'";
     			}
     			else if (choiceu > 6 && choiceu < 11) {
     				System.out.println(" Enter what you want the updated value to be");
-    				int newval = reader.nextInt();
+    				int newval = reader2.nextInt();
     				query = "update group3.isbn set "+temp+"="+newval+"where isbn.ISBN='"+isbnn+"'";
     			}
     			else {
@@ -721,7 +733,6 @@ class Example1
     		System.out.println(" What would you like to generate reports by? ");
     		System.out.println("1. Title");
     		System.out.println("2. Genre");
-    		System.out.println("3. Period");
     		System.out.print("> ");
     		int cu = reader.nextInt();
     		
